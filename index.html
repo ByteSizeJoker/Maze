@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Maze</title>
+        <link rel="icon" type="svg+xml" href="./images/favicon.svg" />
+
+        <link rel="stylesheet" href="style.css" />
+
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap");
+        </style>
+    </head>
+
+    <body>
+        <div style="margin-top: 50px; font-size: var(--font-size-ex-lg)">
+            <span>Maze Generator</span>
+        </div>
+
+        <div class="maze-container" id="maze-container"></div>
+
+        <div class="input-container">
+            <div class="input-row">
+                <span>Rows: </span>
+                <input type="range" min="5" max="50" value="15" id="slider-rows" />
+                <input type="text" id="rows-value" />
+            </div>
+            <div class="input-row">
+                <span>Columns: </span>
+                <input type="range" min="5" max="50" value="15" id="slider-cols" />
+                <input type="text" id="cols-value" />
+            </div>
+            <div class="input-row">
+                <span>Delay:</span>
+                <input type="range" min="4" max="100" value="4" id="slider-delay" />
+                <input type="text" id="delay-value" />
+            </div>
+
+            <div class="button-row">
+                <button class="button" id="generate-maze-button">Generate Maze</button>
+                <button class="button" id="initialize-maze-button">Initialize Maze</button>
+                <button class="button" id="reset-button">Reset</button>
+                <button class="button" id="stop-maze-button">Stop Maze</button>
+            </div>
+        </div>
+
+        <br /><br /><br /><br />
+        <script src="script.js"></script>
+    </body>
+</html>

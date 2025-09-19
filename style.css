@@ -1,0 +1,271 @@
+:root {
+
+    /* Layout */
+    --max-width: 1200px;
+
+    /* Colors */
+    --color-background: #1A1A2E;
+    --color-text: #EAEAEA;
+    --color-wall: #000814;
+    --color-cell: #F9C74F;
+    --color-start: #90BE6D;
+    --color-end: #F94144;
+    --color-end-2: #F9844A;
+    --color-accent1: #00BFFF;
+    --color-accent2: #FF4DFF;
+
+    /* Font Sizes */
+    --font-size-md: 16px;
+    --font-size-lg: 20px;
+    --font-size-ex-lg: 24px;
+
+    /* Font Weights */
+    --font-weight-regular: 400;
+    --font-weight-bold: 700;
+
+    /* Maze */
+    --rows: 15;
+    --cols: 15;
+}
+
+/* Body Styles */
+body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-size: var(--font-size-md);
+    max-width: var(--max-width);
+    margin: 0 auto;
+    justify-content: center;
+    text-align: center;
+
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: var(--font-weight-bold);
+    font-style: normal;
+
+    transition: all 0.3s ease;
+}
+
+/* Maze Container Styles */
+.maze-container {
+    display: grid;
+
+    grid-template-rows: repeat(var(--rows), 1fr);
+    grid-template-columns: repeat(var(--cols), 1fr);
+
+    aspect-ratio: var(--cols) / var(--rows);
+    max-width: 500px;
+    max-height: 500px;
+
+    margin: 0 auto;
+    margin-top: 25px;
+
+    background-color: var(--color-wall);
+    border: 2px solid var(--color-wall);
+
+    transition: all 0.3s ease;
+}
+
+.maze-container.finish {
+    animation: glow 1s ease-in-out;
+    animation-delay: 0.5s;
+}
+
+/* Cell Styles */
+.cell {
+    transition: all 0.3s ease;
+
+    background-color: var(--color-background);
+    border: 2px solid var(--color-wall);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: auto !important;
+}
+
+.cell.start {
+    background-color: var(--color-start) !important;
+}
+
+.cell.end {
+    background-color: var(--color-end) !important;
+}
+
+.cell.visited {
+    animation: cellPop 0.3s ease-out forwards;
+}
+
+.cell.backtrack {
+    animation: backtrackAnimation 0.3s ease-in forwards;
+}
+
+@keyframes cellPop {
+    0% {
+        transform: scale(0.2);
+        background-color: var(--color-wall);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.1);
+        background-color: var(--color-cell);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+        background-color: var(--color-cell);
+    }
+}
+
+@keyframes backtrackAnimation {
+
+    0% {
+        background-color: var(--color-cell);
+        transform: scale(1);
+    }
+
+    25% {
+        background-color: var(--color-end);
+        transform: translateX(-5px);
+    }
+
+    50% {
+        background-color: var(--color-end-2);
+        transform: translateX(5px);
+    }
+
+    100% {
+        background-color: var(--color-cell);
+        transform: scale(1);
+    }
+
+}
+
+@keyframes glow {
+
+    0% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.4);
+    }
+
+    100% {
+        filter: brightness(1);
+    }
+
+}
+
+
+
+
+/* cells stuff ended */
+
+/* Input Container Styles */
+.input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 500px;
+    margin: 30px auto;
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+}
+
+.input-row span {
+    width: 70px;
+    text-align: right;
+}
+
+.input-row input[type="range"] {
+    flex: 1;
+}
+
+.input-row input[type="text"] {
+    width: 50px;
+    text-align: left;
+}
+
+.button-row {
+    margin-top: 20px;
+    display: flex;
+    gap: 50px;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 10px;
+    background: linear-gradient(to right, var(--color-accent1), var(--color-accent2));
+    background-size: 120% 100%;
+    background-position: left;
+    border-radius: 5px;
+    outline: none;
+    transition: all 0.6s ease;
+}
+
+input[type="range"]:hover {
+    background-position: right;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    background: var(--color-text);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--color-accent1);
+    transition: all 0.3s ease;
+}
+
+input[type='range']::-moz-range-thumb:hover {
+    transform: scale(1.5);
+}
+
+input[type="text"] {
+    background-color: #00000000;
+    color: var(--color-text);
+    font-size: var(--font-size-md);
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: var(--font-weight-bold);
+    font-style: normal;
+    width: 50px;
+    outline: none;
+    border: none;
+
+
+}
+
+.button {
+    background: linear-gradient(to right, var(--color-accent1), var(--color-accent2));
+    background-size: 150% 100%;
+    background-position: left;
+    color: var(--color-text);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: var(--font-weight-bold);
+    font-style: normal;
+    transition: all 0.6s ease-in-out;
+}
+
+.button:hover {
+    background-position: right;
+    cursor: pointer;
+}
