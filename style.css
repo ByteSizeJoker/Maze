@@ -11,6 +11,7 @@
     --color-start: #90BE6D;
     --color-end: #F94144;
     --color-end-2: #F9844A;
+    --color-solution: #43AA8B;
     --color-accent1: #00BFFF;
     --color-accent2: #FF4DFF;
 
@@ -53,6 +54,7 @@ body {
     grid-template-rows: repeat(var(--rows), 1fr);
     grid-template-columns: repeat(var(--cols), 1fr);
 
+
     aspect-ratio: var(--cols) / var(--rows);
     max-width: 500px;
     max-height: 500px;
@@ -66,6 +68,7 @@ body {
     transition: all 0.3s ease;
 }
 
+
 .maze-container.finish {
     animation: glow 1s ease-in-out;
     animation-delay: 0.5s;
@@ -76,21 +79,22 @@ body {
     transition: all 0.3s ease;
 
     background-color: var(--color-background);
-    border: 2px solid var(--color-wall);
+    border: 1px solid var(--color-wall);
+
 
     display: flex;
     justify-content: center;
     align-items: center;
-
-    font-size: auto !important;
 }
 
 .cell.start {
     background-color: var(--color-start) !important;
+    animation: lighter-glow 2s linear infinite !important;
 }
 
 .cell.end {
     background-color: var(--color-end) !important;
+    animation: strong-glow 2s linear infinite !important;
 }
 
 .cell.visited {
@@ -99,6 +103,39 @@ body {
 
 .cell.backtrack {
     animation: backtrackAnimation 0.3s ease-in forwards;
+}
+
+/* .cell.solution {
+    animation: solutionGlow 2s linear infinite;
+    animation-delay: 0.3s;
+} */
+
+@keyframes lighter-glow {
+    0% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.2);
+    }
+
+    100% {
+        filter: brightness(1);
+    }
+}
+
+@keyframes strong-glow {
+    0% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.6);
+    }
+
+    100% {
+        filter: brightness(1);
+    }
 }
 
 @keyframes cellPop {
@@ -160,6 +197,22 @@ body {
 
 }
 
+@keyframes solutionGlow {
+    0% {
+        filter: brightness(1);
+        background-color: var(--color-solution);
+    }
+
+    50% {
+        filter: brightness(1.2);
+        background-color: var(--color-solution);
+    }
+
+    100% {
+        filter: brightness(1);
+        background-color: var(--color-solution);
+    }
+}
 
 
 

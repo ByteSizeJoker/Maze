@@ -36,7 +36,6 @@ function generateMaze() {
     let largestStack = [];
     let currentIndex = selectRandomStartCell(rows, cols);
     markCellAsVisited(cells[currentIndex]);
-    let currentCellElement = null;
     let iteration = 0;
 
     interval = setInterval(() => {
@@ -80,6 +79,7 @@ function processMazeGenerationStep(currentIdx, stk, lgstStk, rows, cols) {
         const cell = getCell(lgstStk.pop());
         cell.classList.add("end");
         MAZE_CONTAINER.classList.add("finish");
+        highlightSolutionPath(lgstStk);
         stopInterval();
     }
 
@@ -145,6 +145,15 @@ function createPath(currentIndex, adjIndex, direction) {
         cells[currentIndex].style.setProperty("border-right", "transparent");
         cells[adjIndex].style.setProperty("border-left", "transparent");
     }
+}
+
+function highlightSolutionPath(lgstStk) {
+    let arr = lgstStk;
+    arr.shift();
+    arr.forEach((element) => {
+        cell = cells[element];
+        cell.classList.add("solution");
+    });
 }
 
 //# Grid Management
