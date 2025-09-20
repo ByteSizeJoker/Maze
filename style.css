@@ -11,7 +11,7 @@
     --color-start: #90BE6D;
     --color-end: #F94144;
     --color-end-2: #F9844A;
-    --color-solution: #43AA8B;
+    --color-solution: #F9C74F;
     --color-accent1: #00BFFF;
     --color-accent2: #FF4DFF;
 
@@ -31,16 +31,17 @@
 
 /* Body Styles */
 body {
-    background-color: var(--color-background);
-    color: var(--color-text);
-    font-size: var(--font-size-md);
     max-width: var(--max-width);
     margin: 0 auto;
     justify-content: center;
     text-align: center;
 
+    background-color: var(--color-background);
+    color: var(--color-text);
+
     font-family: "Montserrat", sans-serif;
     font-optical-sizing: auto;
+    font-size: var(--font-size-md);
     font-weight: var(--font-weight-bold);
     font-style: normal;
 
@@ -50,24 +51,19 @@ body {
 /* Maze Container Styles */
 .maze-container {
     display: grid;
-
     grid-template-rows: repeat(var(--rows), 1fr);
     grid-template-columns: repeat(var(--cols), 1fr);
 
-
-    aspect-ratio: var(--cols) / var(--rows);
     max-width: 500px;
     max-height: 500px;
-
     margin: 0 auto;
     margin-top: 25px;
 
-    background-color: var(--color-wall);
+    background-color: var(--color-background);
     border: 2px solid var(--color-wall);
 
     transition: all 0.3s ease;
 }
-
 
 .maze-container.finish {
     animation: glow 1s ease-in-out;
@@ -76,15 +72,10 @@ body {
 
 /* Cell Styles */
 .cell {
-    transition: all 0.3s ease;
-
     background-color: var(--color-background);
     border: 1px solid var(--color-wall);
 
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    transition: all 0.3s ease;
 }
 
 .cell.start {
@@ -105,10 +96,9 @@ body {
     animation: backtrackAnimation 0.3s ease-in forwards;
 }
 
-/* .cell.solution {
-    animation: solutionGlow 2s linear infinite;
-    animation-delay: 0.3s;
-} */
+.cell.solution {
+    filter: brightness(0.9);
+}
 
 @keyframes lighter-glow {
     0% {
@@ -196,27 +186,6 @@ body {
     }
 
 }
-
-@keyframes solutionGlow {
-    0% {
-        filter: brightness(1);
-        background-color: var(--color-solution);
-    }
-
-    50% {
-        filter: brightness(1.2);
-        background-color: var(--color-solution);
-    }
-
-    100% {
-        filter: brightness(1);
-        background-color: var(--color-solution);
-    }
-}
-
-
-
-/* cells stuff ended */
 
 /* Input Container Styles */
 .input-container {

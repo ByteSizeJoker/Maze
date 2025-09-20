@@ -1,8 +1,11 @@
 const MAZE_CONTAINER = document.getElementById("maze-container");
+// Assuming square container
+const MAX_CONTAINER_SIZE = 500;
 const DEFAULT_CONFIG = {
     rows: 15,
     cols: 15,
     delay: 5,
+    isPathHighlighted: false,
 };
 const DIRECTIONS = {
     TOP: "top",
@@ -26,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 //# Maze Generation
 function generateMaze() {
+    initializeGrid();
     const rows = Number(localStorage.getItem("rows"));
     const cols = Number(localStorage.getItem("cols"));
     const delay = Number(localStorage.getItem("delay"));
@@ -43,6 +47,7 @@ function generateMaze() {
         currentIndex = result.currentIndex;
         stack = result.stack;
         largestStack = result.lgstStk;
+        this.solution = largestStack;
         iteration++;
         if (iteration > MAX_ITERATIONS) {
             stopInterval();
@@ -79,7 +84,7 @@ function processMazeGenerationStep(currentIdx, stk, lgstStk, rows, cols) {
         const cell = getCell(lgstStk.pop());
         cell.classList.add("end");
         MAZE_CONTAINER.classList.add("finish");
-        highlightSolutionPath(lgstStk);
+        // highlightPath(lgstStk);
         stopInterval();
     }
 
@@ -133,26 +138,35 @@ function getRandomAdjacentCell(cellIndex, rows, cols) {
 
 function createPath(currentIndex, adjIndex, direction) {
     if (direction == DIRECTIONS.TOP) {
-        cells[currentIndex].style.setProperty("border-top", "transparent");
-        cells[adjIndex].style.setProperty("border-bottom", "transparent");
+        cells[currentIndex].style.setProperty("border-top", "none");
+        cells[adjIndex].style.setProperty("border-bottom", "none");
     } else if (direction == DIRECTIONS.BOTTOM) {
-        cells[currentIndex].style.setProperty("border-bottom", "transparent");
-        cells[adjIndex].style.setProperty("border-top", "transparent");
+        cells[currentIndex].style.setProperty("border-bottom", "none");
+        cells[adjIndex].style.setProperty("border-top", "none");
     } else if (direction == DIRECTIONS.LEFT) {
-        cells[currentIndex].style.setProperty("border-left", "transparent");
-        cells[adjIndex].style.setProperty("border-right", "transparent");
+        cells[currentIndex].style.setProperty("border-left", "none");
+        cells[adjIndex].style.setProperty("border-right", "none");
     } else if (direction == DIRECTIONS.RIGHT) {
-        cells[currentIndex].style.setProperty("border-right", "transparent");
-        cells[adjIndex].style.setProperty("border-left", "transparent");
+        cells[currentIndex].style.setProperty("border-right", "none");
+        cells[adjIndex].style.setProperty("border-left", "none");
     }
 }
 
-function highlightSolutionPath(lgstStk) {
-    let arr = lgstStk;
-    arr.shift();
-    arr.forEach((element) => {
-        cell = cells[element];
-        cell.classList.add("solution");
+function toggleHighlightPath(stack) {
+    let isPathHighlighted = localStorage.getItem("isPathHighlighted") == "true" ? true : false;
+    let path = stack.slice();
+    path.shift();
+
+    isPathHighlighted = !isPathHighlighted;
+    localStorage.setItem("isPathHighlighted", isPathHighlighted);
+
+    path.forEach((cellIdx) => {
+        cell = cells[cellIdx];
+        if (isPathHighlighted) {
+            cell.classList.add("solution");
+        } else {
+            cell.classList.remove("solution");
+        }
     });
 }
 
@@ -164,6 +178,7 @@ function initializeGrid() {
     setGridDimensions(rows, cols);
     stopInterval();
     renderGrid(rows, cols);
+    adjustGridSize(rows, cols);
 }
 
 function renderGrid(rowCount, columnCount) {
@@ -177,6 +192,18 @@ function renderGrid(rowCount, columnCount) {
 
     MAZE_CONTAINER.innerHTML = html;
     cells = MAZE_CONTAINER.querySelectorAll(".cell");
+}
+
+function adjustGridSize(rows, cols) {
+    const cellSize = Math.floor(MAX_CONTAINER_SIZE / Math.max(rows, cols));
+
+    const width = cellSize * cols;
+    const height = cellSize * rows;
+
+    MAZE_CONTAINER.style.width = width + "px";
+    MAZE_CONTAINER.style.height = height + "px";
+
+    MAZE_CONTAINER.style.aspectRatio = "";
 }
 
 function setGridDimensions(rows, cols) {
@@ -218,6 +245,7 @@ function reset() {
     localStorage.setItem("rows", DEFAULT_CONFIG.rows);
     localStorage.setItem("cols", DEFAULT_CONFIG.cols);
     localStorage.setItem("delay", DEFAULT_CONFIG.delay);
+    localStorage.setItem("isPathHighlighted", DEFAULT_CONFIG.isPathHighlighted);
 
     document.documentElement.style.setProperty("--rows", DEFAULT_CONFIG.rows);
     document.documentElement.style.setProperty("--cols", DEFAULT_CONFIG.cols);
@@ -238,7 +266,7 @@ function reset() {
 
     // Buttons
     const generateMazeButton = document.querySelector("#generate-maze-button");
-    const initializeMazeButton = document.querySelector("#initialize-maze-button");
+    const solutionButton = document.querySelector("#solution-button");
     const resetButton = document.getElementById("reset-button");
     const stopMazeButton = document.getElementById("stop-maze-button");
 
@@ -251,9 +279,6 @@ function reset() {
     const delaySliderMin = Number(delaySlider.min);
 
     let inputValue = 0;
-    let rowValue = 0;
-    let colValue = 0;
-    let delayValue = 0;
     rowsInputField.value = rowSlider.value;
     columnInputField.value = columnSlider.value;
     delayInputField.value = delaySlider.value;
@@ -329,8 +354,8 @@ function reset() {
         generateMaze();
     });
     // Initialize Grid
-    initializeMazeButton.addEventListener("click", () => {
-        initializeGrid();
+    solutionButton.addEventListener("click", () => {
+        toggleHighlightPath(this.solution);
     });
     // Reset Maze
     resetButton.addEventListener("click", () => {
