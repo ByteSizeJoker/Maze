@@ -11,7 +11,9 @@
     --color-start: #90BE6D;
     --color-end: #F94144;
     --color-end-2: #F9844A;
-    --color-solution: #F9C74F;
+    --color-clicked: #C77DFF;
+    --color-hover: #3DB2A2;
+    --color-solution: #F9844A;
     --color-accent1: #00BFFF;
     --color-accent2: #FF4DFF;
 
@@ -50,9 +52,14 @@ body {
 
 /* Maze Container Styles */
 .maze-container {
+
+    position: relative;
     display: grid;
     grid-template-rows: repeat(var(--rows), 1fr);
     grid-template-columns: repeat(var(--cols), 1fr);
+
+    width: var(--maze-width);
+    height: var(--maze-height);
 
     max-width: 500px;
     max-height: 500px;
@@ -61,6 +68,7 @@ body {
 
     background-color: var(--color-background);
     border: 2px solid var(--color-wall);
+    border-radius: 5px;
 
     transition: all 0.3s ease;
 }
@@ -70,12 +78,29 @@ body {
     animation-delay: 0.5s;
 }
 
+.maze-container.solved::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    filter: blur(5px);
+    width: calc(var(--maze-width) + 4px);
+    height: calc(var(--maze-height) + 4px);
+    background: linear-gradient(45deg, var(--color-accent1), var(--color-accent2), #7A80FF, var(--color-accent1));
+    background-size: 400% 100%;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+    z-index: -1;
+    animation: glowShift 20s linear infinite;
+}
+
 /* Cell Styles */
 .cell {
     background-color: var(--color-background);
     border: 1px solid var(--color-wall);
 
     transition: all 0.3s ease;
+    transition: filter 1.2s ease-out;
 }
 
 .cell.start {
@@ -89,7 +114,8 @@ body {
 }
 
 .cell.visited {
-    animation: cellPop 0.3s ease-out forwards;
+    animation: cellPop 0.3s ease-out;
+    background-color: var(--color-cell);
 }
 
 .cell.backtrack {
@@ -97,7 +123,24 @@ body {
 }
 
 .cell.solution {
-    filter: brightness(0.9);
+    background-color: var(--color-cell);
+    animation: solutionReveal 1s linear forwards;
+    animation-delay: calc(var(--anim-delay) * 0.05s);
+}
+
+.cell.clicked {
+    background-color: var(--color-clicked) !important;
+}
+
+.cell.solution.clicked {
+    background-color: var(--color-solution) !important;
+}
+
+.cell:hover {
+    filter: brightness(1.4);
+    background-color: var(--color-hover) !important;
+    transition: all 0.2s ease;
+
 }
 
 @keyframes lighter-glow {
@@ -184,7 +227,30 @@ body {
     100% {
         filter: brightness(1);
     }
+}
 
+@keyframes solutionReveal {
+    0% {
+        background-color: var(--color-cell);
+    }
+
+    100% {
+        background-color: var(--color-solution);
+    }
+}
+
+@keyframes solvedGlow {
+    0% {
+        box-shadow: 0 0 0px rgba(0, 255, 255, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+    }
+
+    100% {
+        box-shadow: 0 0 0px rgba(0, 255, 255, 0.4);
+    }
 }
 
 /* Input Container Styles */
@@ -290,4 +356,69 @@ input[type="text"] {
 .button:hover {
     background-position: right;
     cursor: pointer;
+}
+
+
+
+.glowing-button {
+
+    position: relative;
+    padding: 10px 20px;
+    margin: 0 auto;
+
+    border: none;
+    border-radius: 5px;
+
+    background-color: var(--color-accent1);
+    color: var(--color-text);
+
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: var(--font-weight-bold);
+    font-style: normal;
+    cursor: pointer;
+}
+
+.glowing-button::before {
+
+
+    content: "";
+    position: absolute;
+    top: -2px;
+    filter: blur(3px);
+    left: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    /* width: 400%;
+    height: 100%; */
+
+
+    border-radius: 5px;
+
+    background: linear-gradient(45deg, var(--color-accent1), var(--color-accent2), #7A80FF, var(--color-accent1));
+
+    /* background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); */
+    background-size: 400% 100%;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: -1;
+}
+
+.glowing-button:hover::before {
+    opacity: 1;
+    animation: glowShift 20s linear infinite;
+}
+
+@keyframes glowShift {
+    0% {
+        background-position: 0 0;
+    }
+
+    50% {
+        background-position: 400% 0;
+    }
+
+    100% {
+        background-position: 0 0;
+    }
 }

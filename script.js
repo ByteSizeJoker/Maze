@@ -2,8 +2,8 @@ const MAZE_CONTAINER = document.getElementById("maze-container");
 // Assuming square container
 const MAX_CONTAINER_SIZE = 500;
 const DEFAULT_CONFIG = {
-    rows: 15,
-    cols: 15,
+    rows: 30,
+    cols: 30,
     delay: 5,
     isPathHighlighted: false,
 };
@@ -21,7 +21,6 @@ var interval = null;
 document.addEventListener("DOMContentLoaded", () => {
     initializeGrid();
     cells = MAZE_CONTAINER.querySelectorAll(".cell");
-    reset();
     setTimeout(() => {
         generateMaze();
     }, 1000);
@@ -42,18 +41,39 @@ function generateMaze() {
     markCellAsVisited(cells[currentIndex]);
     let iteration = 0;
 
-    interval = setInterval(() => {
-        const result = processMazeGenerationStep(currentIndex, stack, largestStack, rows, cols);
-        currentIndex = result.currentIndex;
-        stack = result.stack;
-        largestStack = result.lgstStk;
-        this.solution = largestStack;
-        iteration++;
-        if (iteration > MAX_ITERATIONS) {
-            stopInterval();
-            console.warn("Timeout");
+    if (delay >= 4) {
+        interval = setInterval(() => {
+            const result = processMazeGenerationStep(currentIndex, stack, largestStack, rows, cols);
+            currentIndex = result.currentIndex;
+            stack = result.stack;
+            largestStack = result.lgstStk;
+            this.solution = largestStack;
+            iteration++;
+            if (result.isFinished) {
+                stopInterval();
+            }
+            if (iteration > MAX_ITERATIONS) {
+                stopInterval();
+                console.warn("Timeout");
+            }
+        }, delay);
+    } else if (delay < 4) {
+        while (true) {
+            const result = processMazeGenerationStep(currentIndex, stack, largestStack, rows, cols);
+            currentIndex = result.currentIndex;
+            stack = result.stack;
+            largestStack = result.lgstStk;
+            this.solution = largestStack;
+            iteration++;
+            if (result.isFinished) {
+                break;
+            }
+            if (iteration > MAX_ITERATIONS) {
+                console.warn("Timeout");
+                break;
+            }
         }
-    }, delay);
+    }
 
     MAZE_CONTAINER.classList.remove("finish");
 
@@ -65,6 +85,8 @@ function processMazeGenerationStep(currentIdx, stk, lgstStk, rows, cols) {
     const adjacentCellInfo = getRandomAdjacentCell(currentIdx, rows, cols);
     const adjacentCellIndex = adjacentCellInfo[0];
     const direction = adjacentCellInfo[1];
+
+    let isFinished = false;
 
     if (adjacentCellIndex != undefined) {
         stk.push(currentIdx);
@@ -85,13 +107,14 @@ function processMazeGenerationStep(currentIdx, stk, lgstStk, rows, cols) {
         cell.classList.add("end");
         MAZE_CONTAINER.classList.add("finish");
         // highlightPath(lgstStk);
-        stopInterval();
+        isFinished = true;
     }
 
     return {
         currentIndex: currentIdx,
         stack: stk,
         lgstStk: lgstStk,
+        isFinished: isFinished,
     };
 }
 
@@ -160,20 +183,42 @@ function toggleHighlightPath(stack) {
     isPathHighlighted = !isPathHighlighted;
     localStorage.setItem("isPathHighlighted", isPathHighlighted);
 
+    let i = 0;
     path.forEach((cellIdx) => {
         cell = cells[cellIdx];
         if (isPathHighlighted) {
             cell.classList.add("solution");
+            cell.style.setProperty("--anim-delay", i);
         } else {
             cell.classList.remove("solution");
         }
+        i++;
     });
+}
+
+function checkIfSolved(stack) {
+    cells = MAZE_CONTAINER.querySelectorAll(".cell");
+    const solutionPath = stack.slice();
+    solutionPath.shift();
+
+    const solutionPathClicked = solutionPath.every((pathIdx) => cells[pathIdx].classList.contains("clicked"));
+
+    const noExtraClicks = Array.from(cells).every((cell, idk) => {
+        if (cell.classList.contains("clicked")) {
+            return solutionPath.includes(idk);
+        }
+        return true;
+    });
+
+    return solutionPathClicked && noExtraClicks;
 }
 
 //# Grid Management
 function initializeGrid() {
     const rows = Number(localStorage.getItem("rows"));
     const cols = Number(localStorage.getItem("cols"));
+    localStorage.setItem("isPathHighlighted", false);
+    MAZE_CONTAINER.classList.remove("solved");
 
     setGridDimensions(rows, cols);
     stopInterval();
@@ -200,8 +245,8 @@ function adjustGridSize(rows, cols) {
     const width = cellSize * cols;
     const height = cellSize * rows;
 
-    MAZE_CONTAINER.style.width = width + "px";
-    MAZE_CONTAINER.style.height = height + "px";
+    MAZE_CONTAINER.style.setProperty("--maze-width", width + "px");
+    MAZE_CONTAINER.style.setProperty("--maze-height", height + "px");
 
     MAZE_CONTAINER.style.aspectRatio = "";
 }
@@ -250,6 +295,8 @@ function reset() {
     document.documentElement.style.setProperty("--rows", DEFAULT_CONFIG.rows);
     document.documentElement.style.setProperty("--cols", DEFAULT_CONFIG.cols);
 
+    MAZE_CONTAINER.classList.remove("solved");
+
     stopInterval();
     initializeGrid();
 }
@@ -265,12 +312,13 @@ function reset() {
     const delayInputField = document.getElementById("delay-value");
 
     // Buttons
-    const generateMazeButton = document.querySelector("#generate-maze-button");
-    const solutionButton = document.querySelector("#solution-button");
+    const generateMazeButton = document.getElementById("generate-maze-button");
+    const checkMazeButton = document.getElementById("check-maze-button");
+    const solutionButton = document.getElementById("solution-button");
     const resetButton = document.getElementById("reset-button");
     const stopMazeButton = document.getElementById("stop-maze-button");
 
-    // getting max and min values
+    // Getting max and min values
     const rowsSliderMax = Number(rowSlider.max);
     const colsSliderMax = Number(columnSlider.max);
     const delaySliderMax = Number(delaySlider.max);
@@ -278,11 +326,19 @@ function reset() {
     const colsSliderMin = Number(columnSlider.min);
     const delaySliderMin = Number(delaySlider.min);
 
-    let inputValue = 0;
-    rowsInputField.value = rowSlider.value;
-    columnInputField.value = columnSlider.value;
-    delayInputField.value = delaySlider.value;
+    // Setting stored values
 
+    const rows = Number(localStorage.getItem("rows") == null ? DEFAULT_CONFIG.rows : localStorage.getItem("rows"));
+    const cols = Number(localStorage.getItem("cols") == null ? DEFAULT_CONFIG.cols : localStorage.getItem("cols"));
+    const delay = Number(localStorage.getItem("delay") == null ? DEFAULT_CONFIG.delay : localStorage.getItem("delay"));
+    rowsInputField.value = rows;
+    columnInputField.value = cols;
+    delayInputField.value = delay;
+    rowSlider.value = rows;
+    columnSlider.value = cols;
+    delaySlider.value = delay;
+
+    let inputValue = 0;
     // Update the Rows value
     rowSlider.addEventListener("input", (event) => {
         inputValue = event.target.value;
@@ -330,8 +386,14 @@ function reset() {
     // Update the Delay value
     delaySlider.addEventListener("input", (event) => {
         inputValue = event.target.value;
-        delayInputField.value = inputValue;
-        localStorage.setItem("delay", inputValue);
+        if (inputValue <= 3 && inputValue >= 0) {
+            delayInputField.value = 0;
+            delaySlider.value = 0;
+            localStorage.setItem("delay", 0);
+        } else {
+            delayInputField.value = inputValue;
+            localStorage.setItem("delay", inputValue);
+        }
     });
     delayInputField.addEventListener("input", (event) => {
         inputValue = Number(event.target.value);
@@ -339,6 +401,10 @@ function reset() {
             delayInputField.value = delaySliderMax;
             delaySlider.value = delaySliderMax;
             localStorage.setItem("delay", delaySliderMax);
+        } else if (inputValue <= 3 && inputValue >= 0) {
+            delayInputField.value = 0;
+            delaySlider.value = 0;
+            localStorage.setItem("delay", 0);
         } else if (inputValue < delaySliderMin) {
             delayInputField.value = delaySliderMin;
             delaySlider.value = delaySliderMin;
@@ -353,7 +419,15 @@ function reset() {
     generateMazeButton.addEventListener("click", () => {
         generateMaze();
     });
-    // Initialize Grid
+
+    // Check if Maze is solved bt uses
+    checkMazeButton.addEventListener("click", () => {
+        if (checkIfSolved(this.solution)) {
+            MAZE_CONTAINER.classList.add("solved");
+        }
+    });
+
+    // Show solution Grid
     solutionButton.addEventListener("click", () => {
         toggleHighlightPath(this.solution);
     });
@@ -371,6 +445,17 @@ function reset() {
     // Stop Maze
     stopMazeButton.addEventListener("click", () => {
         stopInterval();
+    });
+
+    MAZE_CONTAINER.addEventListener("click", (event) => {
+        const cell = event.target.closest(".cell");
+        if (cell) {
+            if (cell.classList.contains("clicked")) {
+                cell.classList.remove("clicked");
+            } else {
+                cell.classList.add("clicked");
+            }
+        }
     });
 }
 

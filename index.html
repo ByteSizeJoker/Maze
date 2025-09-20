@@ -4,8 +4,6 @@
         <title>Maze</title>
         <link rel="icon" type="svg+xml" href="./images/favicon.svg" />
 
-        <link rel="stylesheet" href="style.css" />
-
         <style>
             @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap");
         </style>
@@ -31,19 +29,23 @@
             </div>
             <div class="input-row">
                 <span>Delay:</span>
-                <input type="range" min="4" max="100" value="4" id="slider-delay" />
+                <input type="range" min="0" max="100" value="4" id="slider-delay" />
                 <input type="text" id="delay-value" />
             </div>
 
             <div class="button-row">
                 <button class="button" id="generate-maze-button">Generate Maze</button>
+                <button class="button" id="check-maze-button">Check Maze</button>
                 <button class="button" id="solution-button">Solution</button>
                 <button class="button" id="stop-maze-button">Stop Maze</button>
                 <button class="button" id="reset-button">Reset</button>
             </div>
         </div>
 
+        <button class="glowing-button">GLowing Button</button>
+
         <br /><br /><br /><br />
+        <link rel="stylesheet" href="style.css" />
         <script src="script.js"></script>
     </body>
 </html>
